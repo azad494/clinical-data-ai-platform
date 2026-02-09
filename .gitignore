@@ -207,14 +207,20 @@ marimo/_lsp/
 __marimo__/
 
 # =========================
-# Data Engineering Rules
+# Clinical platform data rules
 # =========================
-# Never commit real data
-data/raw/*
-data/staged/*
-data/processed/*
 
-# Keep documentation files
+# Never commit daily raw/staged/processed data (supports nested YYYY-MM-DD folders)
+data/raw/**
+data/staged/**
+data/processed/**
+
+# Keep folder docs visible on GitHub
 !data/raw/README.md
 !data/staged/README.md
 !data/processed/README.md
+
+# Allow sample data to be committed (one-day snapshot for GitHub)
+!data/sample/**
+!data/sample/**/*
+
