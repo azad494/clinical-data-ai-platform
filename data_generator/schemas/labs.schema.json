@@ -1,0 +1,36 @@
+{
+  "dataset": "labs",
+  "description": "Laboratory results recorded as events within an encounter window.",
+  "primary_key": ["lab_event_id"],
+  "foreign_keys": [
+    { "field": "encounter_id", "references": "encounters.encounter_id" },
+    { "field": "patient_id", "references": "patients.patient_id" }
+  ],
+  "fields": [
+    { "name": "lab_event_id", "type": "int", "required": true, "description": "Unique lab event identifier." },
+
+    { "name": "encounter_id", "type": "int", "required": true, "description": "FK to encounters.encounter_id." },
+    { "name": "patient_id", "type": "int", "required": true, "description": "FK to patients.patient_id (redundant but helpful for joins)." },
+
+    { "name": "event_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Time the lab result was recorded. Must be within admit/discharge." },
+
+    {
+      "name": "test_name",
+      "type": "string",
+      "required": true,
+      "constraints": {
+        "enum": ["WBC", "HGB", "PLT", "Na", "K", "Cr", "BUN", "Glucose", "Lactate", "Troponin"]
+      },
+      "description": "Lab test name."
+    },
+    { "name": "value", "type": "float", "required": true, "description": "Numeric lab value." },
+    { "name": "unit", "type": "string", "required": false, "description": "Unit for the lab value (optional in raw synthetic data)." }
+  ],
+  "constraints": [
+    { "rule": "event_time BETWEEN encounters.admit_time AND encounters.discharge_time", "description": "Labs must occur within the encounter window." }
+  ],
+  "file_format": {
+    "type": "csv",
+    "expected_filename": "labs.csv"
+  }
+}

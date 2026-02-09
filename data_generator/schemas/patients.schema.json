@@ -1,0 +1,19 @@
+{
+  "dataset": "patients",
+  "description": "Patient master data. One row per patient. Referenced by encounters and optional in events.",
+  "primary_key": ["patient_id"],
+  "fields": [
+    { "name": "patient_id", "type": "int", "required": true, "description": "Unique patient identifier." },
+    { "name": "age", "type": "int", "required": true, "constraints": { "min": 0, "max": 120 }, "description": "Age in years at time of encounter/admission (synthetic)." },
+    { "name": "sex", "type": "string", "required": true, "constraints": { "enum": ["M", "F", "U"] }, "description": "Biological sex (synthetic)." }
+  ],
+  "relationships": {
+    "referenced_by": [
+      { "dataset": "encounters", "field": "patient_id" }
+    ]
+  },
+  "file_format": {
+    "type": "csv",
+    "expected_filename": "patients.csv"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "dataset": "encounters",
+  "description": "Encounter/admission records. Anchor entity that ties vitals, labs, and notes together via encounter_id.",
+  "primary_key": ["encounter_id"],
+  "foreign_keys": [
+    { "field": "patient_id", "references": "patients.patient_id" }
+  ],
+  "fields": [
+    { "name": "encounter_id", "type": "int", "required": true, "description": "Unique encounter identifier." },
+    { "name": "patient_id", "type": "int", "required": true, "description": "FK to patients.patient_id." },
+
+    { "name": "admit_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Encounter start timestamp." },
+    { "name": "discharge_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Encounter end timestamp." },
+
+    {
+      "name": "scenario",
+      "type": "string",
+      "required": true,
+      "constraints": { "enum": ["routine", "chest_pain", "sepsis", "copd_hypoxia"] },
+      "description": "Clinical scenario used to generate meaningful vitals/labs/notes patterns."
+    },
+    {
+      "name": "acuity",
+      "type": "string",
+      "required": true,
+      "constraints": { "enum": ["low", "medium", "high"] },
+      "description": "Overall severity level for the encounter."
+    }
+  ],
+  "constraints": [
+    { "rule": "discharge_time > admit_time", "description": "Encounter end must be after start." }
+  ],
+  "relationships": {
+    "references": [
+      { "dataset": "patients", "field": "patient_id" }
+    ],
+    "referenced_by": [
+      { "dataset": "vitals", "field": "encounter_id" },
+      { "dataset": "labs", "field": "encounter_id" },
+      { "dataset": "notes", "field": "encounter_id" }
+    ]
+  },
+  "file_format": {
+    "type": "csv",
+    "expected_filename": "encounters.csv"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "dataset": "notes",
+  "description": "Unstructured clinical notes (doctor/nurse notes) stored as JSON Lines. Notes must tie to encounters and be time-bounded.",
+  "primary_key": ["note_id"],
+  "foreign_keys": [
+    { "field": "encounter_id", "references": "encounters.encounter_id" },
+    { "field": "patient_id", "references": "patients.patient_id" }
+  ],
+  "fields": [
+    { "name": "note_id", "type": "int", "required": true, "description": "Unique note identifier." },
+
+    { "name": "encounter_id", "type": "int", "required": true, "description": "FK to encounters.encounter_id." },
+    { "name": "patient_id", "type": "int", "required": true, "description": "FK to patients.patient_id." },
+
+    { "name": "note_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Time note was authored. Must be within admit/discharge." },
+
+    {
+      "name": "note_type",
+      "type": "string",
+      "required": true,
+      "constraints": { "enum": ["triage", "progress", "assessment_plan", "lab_review", "discharge"] },
+      "description": "Structured label describing the note category."
+    },
+
+    { "name": "text", "type": "string", "required": true, "description": "Clinical free-text note content (synthetic, no PHI)." }
+  ],
+  "constraints": [
+    { "rule": "note_time BETWEEN encounters.admit_time AND encounters.discharge_time", "description": "Notes must occur within the encounter window." }
+  ],
+  "file_format": {
+    "type": "jsonl",
+    "expected_filename": "notes.jsonl"
+  }
+}
