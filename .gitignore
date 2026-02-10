@@ -226,3 +226,4 @@ data/processed/**
 
 # Generator state (local only)
 data_generator/state/**
+!data_generator/state/README.md
