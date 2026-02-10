@@ -85,3 +85,23 @@ For a given date `YYYY-MM-DD`, generation happens in this strict order:
 6) Generate notes driven by scenario + events (vitals/labs)
    - Output: `data/{raw|sample}/YYYY-MM-DD/notes.jsonl`
    - Each note includes `encounter_id`, `patient_id`, `note_time`, `note_type`, `text`
+## Output Mode Contract
+
+The generator supports exactly two output modes:
+
+- `raw`:
+  - Output: `data/raw/YYYY-MM-DD/`
+  - Used for local daily runs (ignored by git)
+
+- `sample`:
+  - Output: `data/sample/YYYY-MM-DD/`
+  - Used for a single GitHub demo day (committed)
+
+`generate_daily_batch.py` must accept an output mode parameter and write all 5 files into the selected date folder.
+## Intended CLI (Design)
+
+- Generate local daily raw data:
+  - `python data_generator/generate_daily_batch.py --date YYYY-MM-DD --mode raw`
+
+- Generate GitHub sample snapshot:
+  - `python data_generator/generate_daily_batch.py --date YYYY-MM-DD --mode sample`
