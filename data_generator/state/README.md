@@ -13,3 +13,6 @@ This folder stores persistent generator state required to model longitudinal dat
 
 - This folder is local-only and should be ignored by git.
 - Sample data committed to GitHub lives under `data/sample/YYYY-MM-DD/`.
+- `encounter_id_counter.txt`
+  - Persistent counter to ensure `encounter_id` is globally unique across dates
+  - Generator increments this as new encounters are created
