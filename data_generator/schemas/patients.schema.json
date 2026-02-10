@@ -1,6 +1,6 @@
 {
   "dataset": "patients",
-  "description": "Patient master data. One row per patient. Referenced by encounters and optional in events.",
+  "description": "Daily snapshot of ACTIVE patients referenced by encounters for the given date. The full longitudinal patient registry is maintained locally in data_generator/state/patients_master.csv.",
   "primary_key": ["patient_id"],
   "fields": [
     { "name": "patient_id", "type": "int", "required": true, "description": "Unique patient identifier." },
@@ -12,6 +12,9 @@
       { "dataset": "encounters", "field": "patient_id" }
     ]
   },
+  "constraints": [
+  { "rule": "patients.patient_id must appear in encounters.patient_id for the same YYYY-MM-DD folder", "description": "Daily patients.csv contains only active patients for that day's encounters." }
+],
   "file_format": {
     "type": "csv",
     "expected_filename": "patients.csv"
