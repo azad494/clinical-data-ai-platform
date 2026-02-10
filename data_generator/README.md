@@ -57,3 +57,31 @@ Generate GitHub demo snapshot:
 
 Generate local daily raw:
 - Output: `data/raw/YYYY-MM-DD/`
+
+## Daily Generation Order (Frozen)
+
+For a given date `YYYY-MM-DD`, generation happens in this strict order:
+
+1) Update persistent patient registry (local only)
+   - File: `data_generator/state/patients_master.csv`
+   - Add `new_patients_per_day` new patients (until `max_total`)
+
+2) Generate encounters for the day (anchor table)
+   - Output: `data/{raw|sample}/YYYY-MM-DD/encounters.csv`
+   - Each encounter references `patient_id` and defines:
+     - `encounter_id`, `admit_time`, `discharge_time`, `scenario`, `acuity`
+
+3) Export daily ACTIVE patients snapshot
+   - Output: `data/{raw|sample}/YYYY-MM-DD/patients.csv`
+   - Contains only patients referenced in that day's `encounters.csv`
+
+4) Generate vitals within encounter windows
+   - Output: `data/{raw|sample}/YYYY-MM-DD/vitals.csv`
+   - Each row must include `encounter_id`, `patient_id`, `event_time`
+
+5) Generate labs triggered by scenario/vitals
+   - Output: `data/{raw|sample}/YYYY-MM-DD/labs.csv`
+
+6) Generate notes driven by scenario + events (vitals/labs)
+   - Output: `data/{raw|sample}/YYYY-MM-DD/notes.jsonl`
+   - Each note includes `encounter_id`, `patient_id`, `note_time`, `note_type`, `text`
