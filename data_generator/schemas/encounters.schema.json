@@ -2,6 +2,14 @@
   "dataset": "encounters",
   "description": "Encounter/admission records. Anchor entity that ties vitals, labs, and notes together via encounter_id.",
   "primary_key": ["encounter_id"],
+  "id_strategy": {
+  "encounter_id": "globally_unique",
+  "description": "encounter_id must be unique across all dates. Generation should use a persistent counter (local state) to avoid collisions."
+    },
+  "state": {
+  "encounter_id_counter_file": "data_generator/state/encounter_id_counter.txt"
+    },
+
   "foreign_keys": [
     { "field": "patient_id", "references": "patients.patient_id" }
   ],
