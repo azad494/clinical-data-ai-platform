@@ -224,3 +224,5 @@ data/processed/**
 !data/sample/**
 !data/sample/**/*
 
+# Generator state (local only)
+data_generator/state/**

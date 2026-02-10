@@ -1,0 +1,14 @@
+seed: 42
+
+patients:
+  initial_count: 100
+  new_patients_per_day: 5
+  max_total: 5000
+
+encounters:
+  count_per_day: 160
+  scenarios:
+    routine: 0.55
+    chest_pain: 0.20
+    sepsis: 0.15
+    copd_hypoxia: 0.10
