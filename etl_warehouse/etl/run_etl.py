@@ -3,9 +3,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from extract import extract_day
-from transform import transform_day
-from load import load_day
+try:
+    from .extract import extract_day
+    from .transform import transform_day
+    from .load import load_day
+except ImportError:
+    from extract import extract_day
+    from transform import transform_day
+    from load import load_day
 
 
 def parse_args() -> argparse.Namespace:

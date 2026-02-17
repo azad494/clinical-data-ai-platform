@@ -68,6 +68,12 @@ def load_day(staged_data: Dict[str, pd.DataFrame], db_path: Path, schema_path: P
             """
         )
 
+        gold_views_path = schema_path.with_name("gold_views.sql")
+        if gold_views_path.exists():
+            gold_views_sql = gold_views_path.read_text(encoding="utf-8").strip()
+            if gold_views_sql:
+                conn.execute(gold_views_sql)
+
         patients_row = conn.execute("SELECT COUNT(*) FROM curated.dim_patients").fetchone()
         encounters_row = conn.execute("SELECT COUNT(*) FROM curated.fact_encounters").fetchone()
         unique_patients_row = conn.execute("SELECT COUNT(DISTINCT patient_id) FROM raw.patients").fetchone()
