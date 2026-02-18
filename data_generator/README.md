@@ -1,107 +1,51 @@
-# Data Generator (Project 0)
+# Data Generator
 
-This module generates **meaningful synthetic clinical data** for the platform.
+Synthetic clinical data generator for daily batch inputs.
 
-## Output Structure
+## Implemented Scope (Phase 1)
 
-For a given date `YYYY-MM-DD`, the generator writes:
+For each run date, the generator currently creates:
 
-- Local daily raw data (ignored by git):
-  - `data/raw/YYYY-MM-DD/`
-- One-day GitHub demo snapshot (committed):
-  - `data/sample/YYYY-MM-DD/`
-
-Files generated per day:
 - `patients.csv`
-- `encounters.csv` (ANCHOR)
-- `vitals.csv`
-- `labs.csv`
-- `notes.jsonl`
+- `encounters.csv`
 
-## Meaningful Connections (Join Strategy)
+Output modes:
 
-The dataset is designed around **encounters**.
+- `raw` -> `data/raw/YYYY-MM-DD/`
+- `sample` -> `data/sample/YYYY-MM-DD/`
 
-- `patients.csv` is joined using `patient_id`
-- `encounters.csv` contains `encounter_id` + `patient_id`
-- `vitals.csv`, `labs.csv`, and `notes.jsonl` must include:
-  - `encounter_id` (required)
-  - `patient_id` (required for convenience)
-- All event timestamps (`event_time`, `note_time`) must fall within:
-  - `admit_time <= time <= discharge_time`
+## Entry Point
 
-This ensures consistent, realistic relationships across tables.
+- `data_generator/generate_daily_batch.py`
 
-## Schemas (Contracts)
+Run examples:
 
-Raw contracts live in `data_generator/schemas/` and define:
-- required fields
-- types and ranges
-- foreign keys
-- time-window constraints
+```bash
+python data_generator/generate_daily_batch.py --date 2026-02-08 --mode sample
+python data_generator/generate_daily_batch.py --date 2026-02-09 --mode raw
+```
 
-Generator logic must follow these schemas.
+## Current Generation Flow
 
-## Modules
+1. Load config from `data_generator/config.yaml`
+2. Initialize/read patient master state
+3. Add new patients for the day
+4. Ensure global encounter ID counter exists
+5. Generate daily encounters with scenario-weighted logic
+6. Export active-day patient snapshot
 
-- `generate_daily_batch.py` = orchestrator (single entrypoint)
-- `generators/` = dataset generators:
-  - patients → encounters → vitals/labs/notes (in this order)
+## State Management
 
-## Run Contract (to be implemented)
+Persistent local state is stored in `data_generator/state/`:
 
-Examples of intended usage:
+- `patients_master.csv`
+- `encounter_id_counter.txt`
 
-Generate GitHub demo snapshot:
-- Output: `data/sample/YYYY-MM-DD/`
+This keeps IDs stable and globally unique across dates.
 
-Generate local daily raw:
-- Output: `data/raw/YYYY-MM-DD/`
+## Planned Next
 
-## Daily Generation Order (Frozen)
-
-For a given date `YYYY-MM-DD`, generation happens in this strict order:
-
-1) Update persistent patient registry (local only)
-   - File: `data_generator/state/patients_master.csv`
-   - Add `new_patients_per_day` new patients (until `max_total`)
-
-2) Generate encounters for the day (anchor table)
-   - Output: `data/{raw|sample}/YYYY-MM-DD/encounters.csv`
-   - Each encounter references `patient_id` and defines:
-     - `encounter_id`, `admit_time`, `discharge_time`, `scenario`, `acuity`
-
-3) Export daily ACTIVE patients snapshot
-   - Output: `data/{raw|sample}/YYYY-MM-DD/patients.csv`
-   - Contains only patients referenced in that day's `encounters.csv`
-
-4) Generate vitals within encounter windows
-   - Output: `data/{raw|sample}/YYYY-MM-DD/vitals.csv`
-   - Each row must include `encounter_id`, `patient_id`, `event_time`
-
-5) Generate labs triggered by scenario/vitals
-   - Output: `data/{raw|sample}/YYYY-MM-DD/labs.csv`
-
-6) Generate notes driven by scenario + events (vitals/labs)
-   - Output: `data/{raw|sample}/YYYY-MM-DD/notes.jsonl`
-   - Each note includes `encounter_id`, `patient_id`, `note_time`, `note_type`, `text`
-## Output Mode Contract
-
-The generator supports exactly two output modes:
-
-- `raw`:
-  - Output: `data/raw/YYYY-MM-DD/`
-  - Used for local daily runs (ignored by git)
-
-- `sample`:
-  - Output: `data/sample/YYYY-MM-DD/`
-  - Used for a single GitHub demo day (committed)
-
-`generate_daily_batch.py` must accept an output mode parameter and write all 5 files into the selected date folder.
-## Intended CLI (Design)
-
-- Generate local daily raw data:
-  - `python data_generator/generate_daily_batch.py --date YYYY-MM-DD --mode raw`
-
-- Generate GitHub sample snapshot:
-  - `python data_generator/generate_daily_batch.py --date YYYY-MM-DD --mode sample`
+- Add `vitals.csv`
+- Add `labs.csv`
+- Add `notes.jsonl`
+- Enforce full schema contracts across all generated datasets

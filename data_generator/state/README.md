@@ -1,18 +1,17 @@
-# Generator State (Local Only)
+# Generator State
 
-This folder stores persistent generator state required to model longitudinal data.
+Persistent state used by `data_generator/generate_daily_batch.py`.
 
 ## Files
 
 - `patients_master.csv`
-  - Persistent master list of all synthetic patients generated so far
-  - Grows over time as `new_patients_per_day` are added
-  - Used so patient IDs remain unique across days
+  - Master registry of all generated patients across dates
+  - Ensures patient IDs stay consistent and unique
+- `encounter_id_counter.txt`
+  - Last-used encounter ID
+  - Ensures `encounter_id` remains globally unique across dates
 
 ## Notes
 
-- This folder is local-only and should be ignored by git.
-- Sample data committed to GitHub lives under `data/sample/YYYY-MM-DD/`.
-- `encounter_id_counter.txt`
-  - Persistent counter to ensure `encounter_id` is globally unique across dates
-  - Generator increments this as new encounters are created
+- Generator updates these files on each run.
+- Daily generated outputs are written to `data/raw/YYYY-MM-DD/` or `data/sample/YYYY-MM-DD/`.

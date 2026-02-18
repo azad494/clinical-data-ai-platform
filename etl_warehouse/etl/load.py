@@ -72,6 +72,7 @@ def load_day(staged_data: Dict[str, pd.DataFrame], db_path: Path, schema_path: P
         if gold_views_path.exists():
             gold_views_sql = gold_views_path.read_text(encoding="utf-8").strip()
             if gold_views_sql:
+                conn.execute("DROP VIEW IF EXISTS gold.daily_encounter_summary")
                 conn.execute(gold_views_sql)
 
         patients_row = conn.execute("SELECT COUNT(*) FROM curated.dim_patients").fetchone()

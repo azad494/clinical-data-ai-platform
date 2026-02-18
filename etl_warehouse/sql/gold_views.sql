@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW gold.daily_encounter_summary AS
+CREATE VIEW gold.daily_encounter_summary AS
 SELECT
     CAST(admit_time AS DATE) AS encounter_date,
     scenario,
