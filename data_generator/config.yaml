@@ -12,3 +12,45 @@ encounters:
     chest_pain: 0.20
     sepsis: 0.15
     copd_hypoxia: 0.10
+
+vitals:
+  frequency_minutes: 60
+  enabled_vital_types:
+    - heart_rate
+    - resp_rate
+    - temperature_c
+    - spo2
+    - systolic_bp
+    - diastolic_bp
+  source_weights:
+    monitor: 0.85
+    manual: 0.15
+  scenario_ranges:
+    routine:
+      heart_rate: { min: 60, max: 100 }
+      resp_rate: { min: 12, max: 20 }
+      temperature_c: { min: 36.3, max: 37.5 }
+      spo2: { min: 95, max: 100 }
+      systolic_bp: { min: 105, max: 130 }
+      diastolic_bp: { min: 65, max: 85 }
+    chest_pain:
+      heart_rate: { min: 75, max: 115 }
+      resp_rate: { min: 14, max: 24 }
+      temperature_c: { min: 36.0, max: 37.8 }
+      spo2: { min: 92, max: 98 }
+      systolic_bp: { min: 130, max: 170 }
+      diastolic_bp: { min: 80, max: 100 }
+    sepsis:
+      heart_rate: { min: 95, max: 140 }
+      resp_rate: { min: 18, max: 34 }
+      temperature_c: { min: 38.0, max: 40.2 }
+      spo2: { min: 88, max: 95 }
+      systolic_bp: { min: 80, max: 105 }
+      diastolic_bp: { min: 45, max: 70 }
+    copd_hypoxia:
+      heart_rate: { min: 80, max: 120 }
+      resp_rate: { min: 16, max: 30 }
+      temperature_c: { min: 36.4, max: 38.0 }
+      spo2: { min: 82, max: 92 }
+      systolic_bp: { min: 110, max: 150 }
+      diastolic_bp: { min: 65, max: 95 }

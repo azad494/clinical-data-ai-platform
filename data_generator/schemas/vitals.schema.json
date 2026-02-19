@@ -1,28 +1,47 @@
 {
   "dataset": "vitals",
-  "description": "Time-series vital signs events generated within an encounter window.",
-  "primary_key": ["event_id"],
+  "description": "Encounter-linked time-series vitals events (Phase 2A MVP event model).",
+  "primary_key": ["encounter_id", "event_time", "vital_type"],
   "foreign_keys": [
     { "field": "encounter_id", "references": "encounters.encounter_id" },
     { "field": "patient_id", "references": "patients.patient_id" }
   ],
   "fields": [
-    { "name": "event_id", "type": "int", "required": true, "description": "Unique vital event identifier." },
-
-    { "name": "encounter_id", "type": "int", "required": true, "description": "FK to encounters.encounter_id." },
-    { "name": "patient_id", "type": "int", "required": true, "description": "FK to patients.patient_id (redundant but helpful for joins)." },
-
-    { "name": "event_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Time the vitals were recorded. Must be within admit/discharge." },
-
-    { "name": "heart_rate", "type": "int", "required": true, "constraints": { "min": 20, "max": 250 }, "description": "HR in beats per minute." },
-    { "name": "spo2", "type": "int", "required": true, "constraints": { "min": 50, "max": 100 }, "description": "Oxygen saturation percentage." },
-    { "name": "sbp", "type": "int", "required": true, "constraints": { "min": 50, "max": 250 }, "description": "Systolic blood pressure (mmHg)." },
-    { "name": "dbp", "type": "int", "required": true, "constraints": { "min": 30, "max": 160 }, "description": "Diastolic blood pressure (mmHg)." },
-    { "name": "resp_rate", "type": "int", "required": false, "constraints": { "min": 5, "max": 60 }, "description": "Respiratory rate (breaths/min). Optional." },
-    { "name": "temperature_c", "type": "float", "required": false, "constraints": { "min": 30.0, "max": 43.0 }, "description": "Body temperature in Celsius. Optional." }
+    { "name": "encounter_id", "type": "int", "required": true, "description": "Primary anchor FK to encounters.encounter_id." },
+    { "name": "patient_id", "type": "int", "required": true, "description": "Secondary anchor FK to patients.patient_id; must match the patient on the referenced encounter." },
+    { "name": "event_time", "type": "datetime", "required": true, "format": "iso8601", "description": "Vitals event timestamp; must be within encounter admit/discharge window." },
+    {
+      "name": "vital_type",
+      "type": "string",
+      "required": true,
+      "constraints": { "enum": ["heart_rate", "resp_rate", "temperature_c", "spo2", "systolic_bp", "diastolic_bp"] },
+      "description": "Type of vital sign captured for the event."
+    },
+    { "name": "value", "type": "float", "required": true, "description": "Numeric measurement value for the given vital_type." },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": true,
+      "constraints": { "enum": ["bpm", "breaths/min", "C", "%", "mmHg"] },
+      "description": "Measurement unit for value."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "required": false,
+      "constraints": { "enum": ["monitor", "manual"] },
+      "description": "Capture source for the vitals reading."
+    }
   ],
   "constraints": [
-    { "rule": "event_time BETWEEN encounters.admit_time AND encounters.discharge_time", "description": "Vitals must occur within the encounter window." }
+    { "rule": "event_time BETWEEN encounters.admit_time AND encounters.discharge_time", "description": "Rule note: event_time must be within the encounter window." },
+    { "rule": "vitals.patient_id = encounters.patient_id for the referenced encounter_id", "description": "Rule note: patient_id on vitals must match patient_id on encounters." }
+  ],
+  "relationships": {
+    "references": [
+      { "dataset": "encounters", "field": "encounter_id" },
+      { "dataset": "patients", "field": "patient_id" }
+    ]
   ],
   "file_format": {
     "type": "csv",

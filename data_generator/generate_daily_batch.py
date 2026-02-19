@@ -7,15 +7,34 @@ from pathlib import Path
 
 import yaml
 
-from data_generator.generators.patients import (
-    ensure_patients_master,
-    add_new_patients,
-    export_active_patients_snapshot,
-)
-from data_generator.generators.encounters import (
-    ensure_encounter_counter,
-    generate_encounters_for_day,
-)
+try:
+    from data_generator.generators.patients import (
+        ensure_patients_master,
+        add_new_patients,
+        export_active_patients_snapshot,
+    )
+    from data_generator.generators.encounters import (
+        ensure_encounter_counter,
+        generate_encounters_for_day,
+    )
+    from data_generator.generators.vitals import (
+        generate_vitals_for_day,
+        write_vitals_csv,
+    )
+except ImportError:
+    from generators.patients import (
+        ensure_patients_master,
+        add_new_patients,
+        export_active_patients_snapshot,
+    )
+    from generators.encounters import (
+        ensure_encounter_counter,
+        generate_encounters_for_day,
+    )
+    from generators.vitals import (
+        generate_vitals_for_day,
+        write_vitals_csv,
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -103,7 +122,17 @@ def main() -> None:
         seed=seed,
     )
 
-    # 5) Export ACTIVE patients snapshot for the day (patients.csv)
+    # 5) Generate encounter-linked vitals and write vitals.csv
+    vitals_cfg = config.get("vitals", {})
+    vitals_rows = generate_vitals_for_day(
+        day=args.date,
+        encounters_rows=encounters_rows,
+        vitals_cfg=vitals_cfg,
+        seed=seed,
+    )
+    vitals_path = write_vitals_csv(vitals_rows, out_dir=out_dir)
+
+    # 6) Export ACTIVE patients snapshot for the day (patients.csv)
     active_patient_ids = sorted({row["patient_id"] for row in encounters_rows})
     active_count = export_active_patients_snapshot(
         master_rows=master_rows,
@@ -120,6 +149,8 @@ def main() -> None:
     print(f"patients_master_path: {master_path}")
     print(f"patients_master_total: {len(master_rows)} (added today: {added_count})")
     print(f"encounters_written: {len(encounters_rows)}")
+    print(f"vitals_written: {len(vitals_rows)}")
+    print(f"vitals_path: {vitals_path}")
     print(f"active_patients_written: {active_count}")
     print(f"encounter_id_counter updated to: {new_last_id}")
 

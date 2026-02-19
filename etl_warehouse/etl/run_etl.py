@@ -35,6 +35,12 @@ def main() -> None:
     print(f"schema_path: {schema_path}")
 
     raw_data = extract_day(input_dir)
+    print(
+        "extract_day: rows "
+        f"patients={len(raw_data['patients'])}, "
+        f"encounters={len(raw_data['encounters'])}, "
+        f"vitals={len(raw_data['vitals'])}"
+    )
     staged_data = transform_day(raw_data)
     load_day(staged_data, db_path=db_path, schema_path=schema_path)
 
